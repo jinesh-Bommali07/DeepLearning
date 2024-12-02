@@ -1,0 +1,5 @@
+streamlit
+numpy
+huggingface_hub 
+pillow
+requests
