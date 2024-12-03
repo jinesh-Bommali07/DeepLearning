@@ -10,14 +10,18 @@ headers = {"Authorization": f"Bearer {API_TOKEN}"}
 
 # Function to query the model
 def query_image(image_file):
-    # Ensure the image is sent as a binary file object
-    files = {"file": image_file}
-    response = requests.post(API_URL, headers=headers, files=files)
-
-    if response.status_code == 200:
-        return response.json()
-    else:
-        st.error(f"Error: {response.status_code} - {response.text}")
+    try:
+        # Use the image in the correct format for Hugging Face
+        files = {"file": ("image.jpg", image_file, "image/jpeg")}
+        response = requests.post(API_URL, headers=headers, files=files)
+        
+        if response.status_code == 200:
+            return response.json()
+        else:
+            st.error(f"Error: {response.status_code} - {response.text}")
+            return None
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
         return None
 
 # Draw bounding boxes on the image
