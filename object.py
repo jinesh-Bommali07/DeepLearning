@@ -10,10 +10,10 @@ headers = {"Authorization": f"Bearer {API_TOKEN}"}
 
 # Function to query the model
 def query_image(image_file):
-    # Ensure the image is sent as a file object
+    # Ensure the image is sent as a binary file object
     files = {"file": image_file}
     response = requests.post(API_URL, headers=headers, files=files)
-    
+
     if response.status_code == 200:
         return response.json()
     else:
@@ -48,7 +48,9 @@ def objectpage():
 
         # Convert the uploaded file to an image and also read it as bytes
         image = Image.open(uploaded_file).convert("RGB")
-        image_bytes = uploaded_file.getvalue()
+        
+        # Read the image file into a binary object for API request
+        image_bytes = uploaded_file.read()
 
         # Query the Hugging Face model
         with st.spinner("Processing..."):
