@@ -20,10 +20,14 @@ def query_image(image_data):
 def draw_boxes(image, predictions):
     draw = ImageDraw.Draw(image)
     for pred in predictions:
-        box = pred["box"]
+        # Extract the box coordinates and label
+        box = pred["box"]  # Expected format: [x1, y1, x2, y2]
         label = pred["label"]
         score = pred["score"]
-        draw.rectangle(box, outline="red", width=2)
+        
+        # Draw the bounding box
+        draw.rectangle([(box[0], box[1]), (box[2], box[3])], outline="red", width=2)
+        # Add a label with the confidence score
         draw.text((box[0], box[1] - 10), f"{label} ({score:.2f})", fill="red")
     return image
 
@@ -50,9 +54,9 @@ def objectpage():
         if output:
             predictions = [
                 {
-                    "box": [box[0], box[1], box[2], box[3]],
-                    "label": pred["label"],
-                    "score": pred["score"],
+                    "box": pred["box"],  # Bounding box coordinates
+                    "label": pred["label"],  # Label for the detected object
+                    "score": pred["score"],  # Confidence score
                 }
                 for pred in output.get("outputs", [])
             ]

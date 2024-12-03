@@ -39,7 +39,8 @@ def main():
         ],
         "AI Tools": [
             st.Page(image_to_textpage, title="Image Recognition", icon="🖼️"),          
-            st.Page(text_to_imgpage, title="Image Genaeration", icon="🖼️"),          
+            st.Page(text_to_imgpage, title="Image Generation", icon="🖼️"), 
+            st.Page(objectpage,title='Object Classification',icon='🔍')         
         ],
         
         "Info": [
