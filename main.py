@@ -4,6 +4,7 @@ from Account import loginpage
 from about import aboutpage
 from image_to_text import image_to_textpage
 from text_to_image import text_to_imgpage
+from object import objectpage
 
 # Function to apply custom CSS
 def add_custom_css():
@@ -18,7 +19,7 @@ def add_custom_css():
             transition: 0.3s ease;
         }
         .big-font:hover {
-            color: green;
+            color: red;
         }
         body {
             font-family: "Arial", sans-serif;
