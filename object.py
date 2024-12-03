@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 from PIL import Image, ImageDraw
+import numpy as np
 
 # Hugging Face API details
 API_URL = "https://api-inference.huggingface.co/models/facebook/detr-resnet-50"
@@ -8,8 +9,8 @@ API_TOKEN = "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"
 headers = {"Authorization": f"Bearer {API_TOKEN}"}
 
 # Function to query the model
-def query_image(image_data):
-    response = requests.post(API_URL, headers=headers, data=image_data)
+def query_image(image_file):
+    response = requests.post(API_URL, headers=headers, files={"file": image_file})
     if response.status_code == 200:
         return response.json()
     else:
@@ -44,22 +45,29 @@ def objectpage():
 
         # Convert image to bytes
         image = Image.open(uploaded_file).convert("RGB")
-        image_data = uploaded_file.read()
 
         # Query the Hugging Face model
         with st.spinner("Processing..."):
-            output = query_image(image_data)
+            output = query_image(uploaded_file)
 
         # Display the results
         if output:
-            predictions = [
-                {
-                    "box": pred["box"],  # Bounding box coordinates
-                    "label": pred["label"],  # Label for the detected object
-                    "score": pred["score"],  # Confidence score
-                }
-                for pred in output.get("outputs", [])
-            ]
-            st.success("Object detection complete!")
-            image_with_boxes = draw_boxes(image, predictions)
-            st.image(image_with_boxes, caption="Detected Objects", use_column_width=True)
+            # Ensure predictions are present in the response
+            if "outputs" in output:
+                predictions = []
+                for pred in output["outputs"][0]["instances"]:
+                    # Process bounding box coordinates
+                    box = pred["bbox"]  # Bounding box in format [x1, y1, x2, y2]
+                    label = pred["label"]  # Label for the detected object
+                    score = pred["score"]  # Confidence score
+                    predictions.append({"box": box, "label": label, "score": score})
+                
+                st.success("Object detection complete!")
+                image_with_boxes = draw_boxes(image, predictions)
+                st.image(image_with_boxes, caption="Detected Objects", use_column_width=True)
+            else:
+                st.error("No objects detected. Please try again.")
+
+# Run the Streamlit app
+if __name__ == "__main__":
+    objectpage()
