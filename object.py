@@ -4,7 +4,7 @@ from PIL import Image, ImageDraw
 
 # Hugging Face API details
 API_URL = "https://api-inference.huggingface.co/models/facebook/detr-resnet-50"
-API_TOKEN = "hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+API_TOKEN = "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"
 headers = {"Authorization": f"Bearer {API_TOKEN}"}
 
 # Function to query the model
