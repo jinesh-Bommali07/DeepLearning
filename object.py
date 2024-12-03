@@ -1,65 +1,51 @@
 import streamlit as st
 import requests
-from PIL import Image, ImageDraw
+from PIL import Image
 
-# Hugging Face API details
-API_URL = "https://api-inference.huggingface.co/models/facebook/detr-resnet-50"
-API_TOKEN = "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"
-headers = {"Authorization": f"Bearer {API_TOKEN}"}
+# API details
+API_URL = "https://api-inference.huggingface.co/models/Falconsai/nsfw_image_detection"
+headers = {"Authorization": "Bearer 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"}
 
-# Function to query the model
-def query_image(image_data):
-    response = requests.post(API_URL, headers=headers, data=image_data)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        st.error(f"Error: {response.status_code} - {response.text}")
+# Function to query the Hugging Face API
+def query_image(file_data):
+    try:
+        response = requests.post(API_URL, headers=headers, data=file_data)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            st.error(f"API request failed with status code {response.status_code}: {response.text}")
+            return None
+    except requests.exceptions.RequestException as e:
+        st.error(f"An error occurred while making the request: {e}")
         return None
 
-# Draw bounding boxes on the image
-def draw_boxes(image, predictions):
-    draw = ImageDraw.Draw(image)
-    for pred in predictions:
-        # Extract the box coordinates and label
-        box = pred["box"]  # Expected format: [x1, y1, x2, y2]
-        label = pred["label"]
-        score = pred["score"]
-        
-        # Draw the bounding box
-        draw.rectangle([(box[0], box[1]), (box[2], box[3])], outline="red", width=2)
-        # Add a label with the confidence score
-        draw.text((box[0], box[1] - 10), f"{label} ({score:.2f})", fill="red")
-    return image
-
 # Streamlit UI
-def objectpage():
-    st.title("Object Detection with Hugging Face DETR")
-    st.write("Upload an image to detect objects using the Facebook DETR model.")
+def image_to_textpage():
+    st.title("Image Detection")
+    st.write("Upload an image to check if it is safe for work.")
 
-    uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+    # File uploader
+    uploaded_file = st.file_uploader("Choose an image file", type=["jpg", "jpeg", "png"])
 
-    if uploaded_file:
-        # Display the uploaded image
-        st.image(uploaded_file, caption="Uploaded Image", use_column_width=True)
+    if uploaded_file is not None:
+        try:
+            # Display uploaded image
+            image = Image.open(uploaded_file)
+            st.image(image, caption="Uploaded Image", use_column_width=True)
 
-        # Convert image to bytes
-        image = Image.open(uploaded_file).convert("RGB")
-        image_data = uploaded_file.read()
+            # Call the API
+            with st.spinner("Analyzing the image..."):
+                response = query_image(uploaded_file.getvalue())
 
-        # Query the Hugging Face model
-        with st.spinner("Processing..."):
-            output = query_image(image_data)
+            # Display the result
+            if response:
+                st.write("### Detection Results")
+                st.json(response)  # Display raw response for debugging
+            else:
+                st.error("Failed to process the image. Please try again.")
+        except Exception as e:
+            st.error(f"An unexpected error occurred: {e}")
 
-        # Display the results
-        if output:
-            predictions = [
-                {
-                    "box": pred["box"],  # Bounding box coordinates
-                    "label": pred["label"],  # Label for the detected object
-                    "score": pred["score"],  # Confidence score
-                }
-                for pred in output.get("outputs", [])
-            ]
-            st.success("Object detection complete!")
-            image_with_boxes = draw_boxes(image, predictions)
-            st.image(image_with_boxes, caption="Detected Objects", use_column_width=True)
+# Run the Streamlit app
+if __name__ == "__main__":
+    image_to_textpage()
