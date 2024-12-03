@@ -16,7 +16,7 @@ def query_image(file_data):
             st.error(f"API request failed with status code {response.status_code}: {response.text}")
             return None
     except requests.exceptions.RequestException as e:
-        st.error(f"An error occurred: {e}")
+        st.error(f"An error occurred while making the request: {e}")
         return None
 
 # Streamlit UI
@@ -30,7 +30,8 @@ def image_to_textpage():
     if uploaded_file is not None:
         try:
             # Display uploaded image
-            st.image(Image.open(uploaded_file), caption="Uploaded Image", use_column_width=True)
+            image = Image.open(uploaded_file)
+            st.image(image, caption="Uploaded Image", use_container_width=True)
 
             # Call the API
             with st.spinner("Analyzing the image..."):
@@ -39,7 +40,7 @@ def image_to_textpage():
             # Display the result
             if response:
                 st.write("### Detection Results")
-                st.json(response)
+                st.json(response)  # Display raw response for debugging
             else:
                 st.error("Failed to process the image. Please try again.")
         except Exception as e:
