@@ -5,8 +5,6 @@ def aboutpage():
     st.title("Contact Information")
 
     # Display contact details
-    st.subheader("📞 Phone Number")
-    st.write("+91 8108301759")  # Replace with your mobile number
 
     st.subheader("📧 Email Address")
     st.write("[jinesh.bommali004@gmail.com](mailto:jinesh.bommali004@gmail.com)")  # Replace with your email address
