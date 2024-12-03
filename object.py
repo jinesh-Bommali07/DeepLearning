@@ -41,7 +41,7 @@ def objectpage():
 
     if uploaded_file:
         # Display the uploaded image
-        st.image(uploaded_file, caption="Uploaded Image", use_column_width=True)
+        st.image(uploaded_file, caption="Uploaded Image", use_container_width=True)
 
         # Convert image to bytes
         image = Image.open(uploaded_file).convert("RGB")
@@ -64,7 +64,7 @@ def objectpage():
                 
                 st.success("Object detection complete!")
                 image_with_boxes = draw_boxes(image, predictions)
-                st.image(image_with_boxes, caption="Detected Objects", use_column_width=True)
+                st.image(image_with_boxes, caption="Detected Objects", use_container_width=True)
             else:
                 st.error("No objects detected. Please try again.")
 
