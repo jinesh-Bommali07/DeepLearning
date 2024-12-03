@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 from PIL import Image, ImageDraw
-import numpy as np
+import io
 
 # Hugging Face API details
 API_URL = "https://api-inference.huggingface.co/models/facebook/detr-resnet-50"
@@ -10,7 +10,10 @@ headers = {"Authorization": f"Bearer {API_TOKEN}"}
 
 # Function to query the model
 def query_image(image_file):
-    response = requests.post(API_URL, headers=headers, files={"file": image_file})
+    # Ensure the image is sent as a file object
+    files = {"file": image_file}
+    response = requests.post(API_URL, headers=headers, files=files)
+    
     if response.status_code == 200:
         return response.json()
     else:
@@ -43,12 +46,13 @@ def objectpage():
         # Display the uploaded image
         st.image(uploaded_file, caption="Uploaded Image", use_container_width=True)
 
-        # Convert image to bytes
+        # Convert the uploaded file to an image and also read it as bytes
         image = Image.open(uploaded_file).convert("RGB")
+        image_bytes = uploaded_file.getvalue()
 
         # Query the Hugging Face model
         with st.spinner("Processing..."):
-            output = query_image(uploaded_file)
+            output = query_image(io.BytesIO(image_bytes))  # Send the image as file-like object
 
         # Display the results
         if output:
